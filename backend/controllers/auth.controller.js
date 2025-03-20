@@ -20,7 +20,7 @@ export const signup = async (req, res) => {
             return res.status(400).json({
                 message: "Username already exists",
             });
-        } 
+        }
 
         // Hash password
         const salt = await bcrypt.genSalt(10);
@@ -58,9 +58,30 @@ export const signup = async (req, res) => {
 }
 
 export const signin = async (req, res) => {
+    const authService = new AuthService();
     try {
+        const { username, password } = req.body;
+        const foundUser = await authService.getUserByUsername(username);
+        if (!foundUser) {
+            return res.status(404).json({
+                message: "User not found",
+            });
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, foundUser?.password);
+        if (!isPasswordValid) {
+            return res.status(401).json({
+                message: "Invalid password",
+            });
+        }
+
+        // Generate token and set cookie
+        generateTokenAndSetCookie(foundUser?._id, res);
         res.status(200).json({
-            message: "Signin successful",
+            _id: foundUser?._id,
+            name: foundUser?.name,
+            username: foundUser?.username,
+            profilePic: foundUser?.profilePic,
         });
     } catch (error) {
         console.log(`Error signin controller: ${error}`);
@@ -72,6 +93,7 @@ export const signin = async (req, res) => {
 
 export const logout = async (req, res) => {
     try {
+        res.cookie("jwt", "", { maxAge: 0 });
         res.status(200).json({
             message: "Logout successful",
         });
