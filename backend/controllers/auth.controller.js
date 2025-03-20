@@ -6,7 +6,7 @@ export const signup = async (req, res) => {
     const authService = new AuthService();
     try {
         const { name, username, password, confirmPassword, gender } = req.body;
-        console.log(`name: ${name}, username: ${username}, password: ${password}, confirmPassword: ${confirmPassword}, gender: ${gender}`);
+        // console.log(`name: ${name}, username: ${username}, password: ${password}, confirmPassword: ${confirmPassword}, gender: ${gender}`);
 
         if (password !== confirmPassword) {
             return res.status(400).json({
