@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import AuthService from "../services/auth.service.js";
-import generateTokenAndSetCookie from "../utils/generateToken.js";
+import { generateTokenAndSetCookie } from "../utils/index.js";
 
 export const signup = async (req, res) => {
     const authService = new AuthService();
