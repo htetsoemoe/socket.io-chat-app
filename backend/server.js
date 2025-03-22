@@ -1,10 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import authRouter from './routes/auth.route.js';
 import connectDB from './db/connectDB.js';
 import { morgan, logger } from './config/index.js';
 import { validateRequest, errorHandler, notFoundHandler } from './utils/index.js';
+import authRouter from './routes/auth.route.js';
+import messageRouter from './routes/message.route.js';
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ app.get('/', (req, res) => {
     res.send('Hello World');
 });
 app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/messages', messageRouter);
 
 app.use(validateRequest);
 app.use(notFoundHandler);

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import messageSchema from "../models/message.model";
+import messageSchema from "../models/message.model.js";
 
 export default class MessageService {
     constructor() {

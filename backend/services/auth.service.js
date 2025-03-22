@@ -17,4 +17,17 @@ export default class AuthService {
     async getUserByUsername(username) {
         return await this.userModel.findOne({ username });
     }
+
+    async getUserById(id) {
+        return await this.userModel.findById(
+            {
+                _id: id,
+            },
+            {
+                password: 0,
+                createdAt: 0,
+                updatedAt: 0,
+            }
+        );
+    }
 }
