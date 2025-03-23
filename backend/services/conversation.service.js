@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import conversationSchema from "../models/conversation.model";
+import conversationSchema from "../models/conversation.model.js";
 
 export default class ConversationService {
     constructor() {
@@ -12,5 +12,13 @@ export default class ConversationService {
 
     async createConversation(conversation) {
         return await this.conversationModel.create(conversation);
+    }
+
+    async findConversationBySenderAndReceiver(senderId, receiverId) {
+        return await this.conversationModel.findOne({
+            participants: {
+                $all: [senderId, receiverId],
+            },
+        });
     }
 }
