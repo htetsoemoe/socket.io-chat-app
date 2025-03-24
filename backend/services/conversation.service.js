@@ -21,4 +21,12 @@ export default class ConversationService {
             },
         });
     }
+
+    async getAllMessagesByUserToChatId(userId, chatUserId) {
+        return await this.conversationModel.findOne({
+            participants: {
+                $all: [userId, chatUserId],
+            },
+        }).populate("messages");
+    }
 }
