@@ -6,6 +6,7 @@ import { morgan, logger } from './config/index.js';
 import { validateRequest, errorHandler, notFoundHandler } from './utils/index.js';
 import authRouter from './routes/auth.route.js';
 import messageRouter from './routes/message.route.js';
+import usersRouter from './routes/users.route.js';
 
 dotenv.config();
 const app = express();
@@ -22,6 +23,7 @@ app.get('/', (req, res) => {
 });
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/messages', messageRouter);
+app.use('/api/v1/users', usersRouter);
 
 app.use(validateRequest);
 app.use(notFoundHandler);
