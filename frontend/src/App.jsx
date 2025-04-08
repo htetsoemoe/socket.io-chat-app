@@ -5,7 +5,6 @@ import './App.css'
 import Signin from './pages/signin/Signin'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <div className="flex items-center justify-center h-screen p-4">
