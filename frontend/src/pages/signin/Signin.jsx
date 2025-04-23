@@ -36,9 +36,14 @@ const Signin = () => {
 
                     <div className="flex items-start">
                         <Link
+                            to="/signup"
                             className='text-sm hover:underline hover:text-white'
                         >
-                            Don't have an account?
+                            <span
+                                className='text-sm hover:underline hover:text-red-900'
+                            >
+                                Don't have an account, Sign Up?
+                            </span>
                         </Link>
                     </div>
 

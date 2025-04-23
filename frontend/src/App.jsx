@@ -1,14 +1,21 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
 import Signin from './pages/signin/Signin'
+import Signup from './pages/signup/Signup'
+import Home from './pages/home/Home'
+import { Routes, Route, Navigate } from 'react-router-dom'
+import { Toaster } from 'react-hot-toast'
+import { useAuthContext } from './context/AuthContext'
 
 function App() {
+  const { authUser } = useAuthContext()
 
   return (
     <div className="flex items-center justify-center h-screen p-4">
-      <Signin />
+      <Routes>
+        <Route path='/' element={authUser ? <Home /> : <Navigate to="/signin" />} />
+        <Route path='/signin' element={authUser ? <Navigate to="/" /> : <Signin />} />
+        <Route path='/signup' element={authUser ? <Navigate to="/" /> : <Signup />} />
+      </Routes>
+      <Toaster />
     </div>
     // <>
     //   <div className="

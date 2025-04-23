@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import connectDB from './db/connectDB.js';
 import { morgan, logger } from './config/index.js';
 import { validateRequest, errorHandler, notFoundHandler } from './utils/index.js';
@@ -16,6 +17,7 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 app.use(morgan({ logger }));
 
 app.get('/', (req, res) => {
