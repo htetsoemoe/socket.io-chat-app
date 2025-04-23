@@ -1,8 +1,17 @@
 import React, { use, useState } from 'react'
 import { Link } from 'react-router-dom'
+import useSignin from '../../hooks/useSignin.js'
 
 const Signin = () => {
-    const [loading, setLoading] = useState(false)
+    const [username, setUsername] = useState('');
+    const [password, setPassword] = useState('');
+
+    const { loading, signin } = useSignin();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        await signin(username, password);
+    }
 
     return (
         <div className='flex flex-col items-center justify-center min-w-96 mx-auto'>
@@ -11,15 +20,16 @@ const Signin = () => {
                     Chatty<span className="text-black ml-3">Twitty</span>
                 </h1>
 
-                <form action="">
+                <form onSubmit={handleSubmit}>
                     <div className='mb-5'>
                         <div className="label p-2 pl-0 mb-1 flex items-start">
                             <span className="text-base">Username</span>
                         </div>
-                        <input type="text" 
+                        <input type="text"
                             placeholder='Enter your username'
                             className='w-full h-10 input focus:outline-none'
-                            required
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
                         />
                     </div>
 
@@ -27,10 +37,11 @@ const Signin = () => {
                         <label className="label p-2 pl-0 mb-1 flex items-start">
                             <span className="text-base">Password</span>
                         </label>
-                        <input type="text"
+                        <input type="password"
                             placeholder='Enter your password'
                             className='w-full h-10 input focus:outline-none'
-                            required
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
 
