@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import useConversation from '../../zustand/useConversation';
 import { TiMessage } from 'react-icons/ti';
 import { useAuthContext } from '../../context/AuthContext';
+import Messages from './Messages';
 
 const MessageContainer = () => {
 	const { selectedConversation, setSelectedConversation } = useConversation()
@@ -19,13 +20,14 @@ const MessageContainer = () => {
 				{!selectedConversation ? (
 					<NoChatSelected />
 				) : (
-					<>
+					<div className='flex flex-col h-full ml-1'>
 						{/* Header */}
 						<div className='bg-slate-500 px-4 py-2 mb-2'>
 							<span className='label-text'>To:</span>{" "}
 							<span className='text-gray-900 font-bold'>{selectedConversation.name}</span>
 						</div>
-					</>
+						<Messages />
+					</div>
 				)}
 			</>
 		</div>
