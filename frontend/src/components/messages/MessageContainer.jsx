@@ -3,6 +3,7 @@ import useConversation from '../../zustand/useConversation';
 import { TiMessage } from 'react-icons/ti';
 import { useAuthContext } from '../../context/AuthContext';
 import Messages from './Messages';
+import MessageInput from './MessageInput';
 
 const MessageContainer = () => {
 	const { selectedConversation, setSelectedConversation } = useConversation()
@@ -27,6 +28,7 @@ const MessageContainer = () => {
 							<span className='text-gray-900 font-bold'>{selectedConversation.name}</span>
 						</div>
 						<Messages />
+						<MessageInput />
 					</div>
 				)}
 			</>
