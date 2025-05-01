@@ -11,6 +11,12 @@ const io = new Server(server, {
     }
 });
 
+// Get receiver's socket id from the receiver's userId
+export const getReceiverSocketId = (receiverId) => {
+    const receiverSocketId = userSocketMap[receiverId];
+    return receiverSocketId;
+};
+
 const userSocketMap = {}; // {userId: socketId}
 
 io.on("connection", (socket) => {
