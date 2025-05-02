@@ -1,12 +1,25 @@
 import NotificationService from "../services/notification.service.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendHeart = async (req, res) => {
     try {
-        const {isLike, senderId, receiverId} = req.body;
+        const { isLike, senderId, receiverId } = req.body;
         const msgId = req.params.msgId;
 
         const notificationService = new NotificationService();
         await notificationService.updateMessageIsLike(msgId, isLike);
+
+        const notiReceiverSocketId = getReceiverSocketId(senderId);
+        console.log(`notiReceiverSocketId: ${notiReceiverSocketId}`);
+
+        if (notiReceiverSocketId) {
+            io.to(notiReceiverSocketId).emit("receiveLoveReaction", {
+                isLike,
+                senderId,
+                receiverId,
+                msgId,
+            });
+        }
 
         res.status(200).json({
             data: {
