@@ -26,6 +26,7 @@ export const sendMessage = async (req, res) => {
             senderId,
             receiverId,
             message,
+            isLike: false,
         };
         const newMessage = await messageService.createMessage(newMessageData);
 

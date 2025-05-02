@@ -8,6 +8,7 @@ import { validateRequest, errorHandler, notFoundHandler } from './utils/index.js
 import authRouter from './routes/auth.route.js';
 import messageRouter from './routes/message.route.js';
 import usersRouter from './routes/users.route.js';
+import notificationRouter from './routes/notification.route.js';
 import { server, app } from './socket/socket.js';
 
 dotenv.config();
@@ -26,6 +27,7 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/messages', messageRouter);
 app.use('/api/v1/users', usersRouter);
+app.use('/api/v1/noti', notificationRouter);
 
 app.use(validateRequest);
 app.use(notFoundHandler);

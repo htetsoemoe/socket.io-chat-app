@@ -15,6 +15,10 @@ const messageSchema = new mongoose.Schema(
         message: {
             type: String,
             required: true,
+        },
+        isLike: {
+            type: Boolean,
+            default: false,
         }
     },
     {
