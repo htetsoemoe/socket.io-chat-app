@@ -9,13 +9,8 @@ import { CgProfile } from "react-icons/cg";
 
 const MessageContainer = () => {
 	const { selectedConversation, setSelectedConversation } = useConversation()
-
-	const notifications = [
-		{ message: "You have a new message from John Doe" },
-		{ message: "You have a new message from Jane Smith" },
-		{ message: "You have a new message from John Doe" },
-		{ message: "You have a new message from John Doe" },
-	]
+	const { user } = useAuthContext()
+	const userId = user?.id
 
 	useEffect(() => {
 		// cleanup function
@@ -39,7 +34,7 @@ const MessageContainer = () => {
 							</div>
 
 							<div className="flex items-center justify-between gap-5">
-								<Notification notifications={notifications} />
+								<Notification userId={userId} />
 								<CgProfile className='text-2xl text-gray-100 hover:cursor-pointer' />
 							</div>
 						</div>

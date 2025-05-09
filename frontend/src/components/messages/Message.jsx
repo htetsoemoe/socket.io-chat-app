@@ -35,9 +35,7 @@ const Message = ({ message }) => {
 
         const res = await fetch(`http://localhost:3500/api/v1/noti/msgId/${message._id}`, {
             method: "PUT",
-            cookies: {
-                "jwt": localStorage.getItem("jwt"),
-            },
+            credentials: "include",// <-- This is crucial for sending cookies
             headers: {
                 "Content-Type": "application/json",
             },

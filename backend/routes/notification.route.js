@@ -8,7 +8,7 @@ import {
 } from '../controllers/notification.controller.js';
 
 const notificationRouter = express.Router();
-// notificationRouter.use(verifyToken);
+notificationRouter.use(verifyToken);
 notificationRouter.put("/msgId/:msgId", sendHeartValidator, sendHeart);
 
 
