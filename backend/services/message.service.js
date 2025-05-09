@@ -13,4 +13,8 @@ export default class MessageService {
     async createMessage(message) {
         return await this.messageModel.create(message);
     }
+
+    async getMessageByMessageId(messageId) {
+        return await this.messageModel.findById(messageId);
+    }
 }

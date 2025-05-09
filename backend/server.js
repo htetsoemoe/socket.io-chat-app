@@ -18,8 +18,12 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
 app.use(morgan({ logger }));
+app.use(cors({ // <-- This is crucial for sending cookies from the frontend to the backend
+    origin: ['http://localhost:5173'], // your frontend origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true, // allow cookies to be sent with the request
+}))
 
 app.get('/', (req, res) => {
     res.send('Hello World');

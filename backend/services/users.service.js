@@ -25,4 +25,13 @@ export default class UserService {
             },
         );
     }
+
+    async getUserById(userId) {
+        return await this.userModel.findById(userId, {
+            password: 0,
+            createdAt: 0,
+            updatedAt: 0,
+            __v: 0,
+        });
+    }
 }   
