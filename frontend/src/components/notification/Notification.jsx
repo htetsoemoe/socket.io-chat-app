@@ -1,24 +1,48 @@
 import React, { useEffect, useState } from 'react'
 import { FaBell } from "react-icons/fa";
+import { FiClock } from "react-icons/fi";
+import { extractTime } from "../../utils/extractTime.js"
 import { useSocketContext } from "../../context/SocketContext.jsx"
+import { useAuthContext } from '../../context/AuthContext.jsx';
 
 const Notification = ({ userId }) => { // userId is the user who is logged in
     const [isOpen, setIsOpen] = useState(false);
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const { socket } = useSocketContext();
+    const { authUser } = useAuthContext();
 
     useEffect(() => {
+        const getAllNotifications = async () => {
+            try {
+                const res = await fetch(`http://localhost:3500/api/v1/noti/userId/${authUser?._id}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    credentials: "include",
+                });
+                const data = await res.json();
+                setNotifications(data); // notifications.notifications
+            } catch (error) {
+                console.error("Error fetching notifications:", error);
+            }
+        }
+        getAllNotifications();
+
         socket.on("navNotification", (data) => {
-            setNotifications((prevNotifications) => [...prevNotifications, data]);
+            getAllNotifications(); // notifications.notifications
             setUnreadCount((prevCount) => prevCount + 1);
+
+            // setNotifications((prevNotifications) => [...prevNotifications, data]);
+            // setNotifications([...notifications, data] );
         });
 
         return () => {
             socket.off("navNotification");
         };
     }, [userId]);
-
+    // console.log(`Notifications: ${JSON.stringify(notifications)}`);
 
     const handleOpen = () => {
         setIsOpen(!isOpen);
@@ -49,28 +73,36 @@ const Notification = ({ userId }) => { // userId is the user who is logged in
                     rounded-lg shadow-lg z-30
                 ">
                     <div className="py-2">
-                        {notifications.length === 0 ? (
+                        {notifications.notifications.length === 0 ? (
                             <p className="px-4 py-2 text-sm text-white nth-[odd]:bg-gray-500">
                                 No new notifications.
                             </p>
                         ) : (
-                            notifications.map((notification, i) => (
+                            notifications.notifications.map((notification, i) => (
                                 <div
                                     key={i}
                                     className="px-4 py-2 text-sm text-gray-700 
                                     hover:bg-gray-300 cursor-pointer 
-                                    nth-[even]:bg-gray-300
-                                    flex items-center justify-center gap-3"
+                                    nth-[even]:bg-gray-300"
                                 >
-                                    <div className={`avatar`}>
-                                        <div className='w-12 rounded-full'>
-                                            <img
-                                                src={notification.profilePic}
-                                                alt='user profile'
-                                            />
+                                    <div className="flex items-center justify-center gap-3">
+                                        <div className={`avatar`}>
+                                            <div className='w-12 rounded-full'>
+                                                <img
+                                                    src={notification.profilePic}
+                                                    alt='user profile'
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className=''>
+                                            {notification.message}
                                         </div>
                                     </div>
-                                    {notification.message}
+
+                                    <div className="flex items-center gap-1 mt-1 ml-15 text-[11px] font-semibold">
+                                        <FiClock color='black' />
+                                        {extractTime(notification.createdAt)}
+                                    </div>
                                 </div>
                             ))
                         )}
