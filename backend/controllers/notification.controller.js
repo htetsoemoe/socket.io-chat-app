@@ -1,6 +1,7 @@
 import NotificationService from "../services/notification.service.js";
 import UserService from "../services/users.service.js";
 import MessageService from "../services/message.service.js";
+import LikeNotiService from "../services/likeNoti.service.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendHeart = async (req, res) => {
@@ -13,6 +14,7 @@ export const sendHeart = async (req, res) => {
         const notificationService = new NotificationService();
         const userService = new UserService();
         const messageService = new MessageService();
+        const likeNotiService = new LikeNotiService();
 
         // auth user for sendNotification event
         const authUser = req.user; // user clicked on heart
@@ -49,21 +51,22 @@ export const sendHeart = async (req, res) => {
             io.to(navbarNotiReceiverSocketId).emit("navNotification", {
                 notiSenderName: notiSender?.username,
                 msgId,
-                profilePic: authUser?.profilePic,
-                message: `${authUser?.name} liked your message. "${String(foundMessage?.message).slice(0, 20)}..."`,
+                profilePic: notiSender?.profilePic, // <== change this to notiSender?.profilePic
+                message: `${notiSender?.name} liked your message. "${String(foundMessage?.message).slice(0, 20)}..."`, 
+                // <== change this to notiSender?.name
             })
         }
 
-        // We need to save this event to database
-        /**
-         * {
-         *  notiSenderId: notiSender?._id,
-         *  notiReceiverId: senderId,
-         *  msgId,
-         *  createdAt: new Date(),
-         *  updatedAt: new Date(),
-         * }
-         */
+        // We need to save this event to database as a notification
+        const newLikeNotiData = {
+            notiSenderId: notiSender?._id,
+            notiReceiverId: senderId, // this is notification receiver(auth user)
+            msgId: msgId,
+            isLike: true,
+            profilePic: notiSender?.profilePic,
+            message: `${notiSender?.name} liked your message. "${String(foundMessage?.message).slice(0, 20)}..."`,
+        }
+        const newLikeNoti = await likeNotiService.createLikeNoti(newLikeNotiData);
 
         res.status(200).json({
             data: {
@@ -73,7 +76,7 @@ export const sendHeart = async (req, res) => {
                 msgId,
             },
             status: "success",
-            message: "Heart sent successfully",
+            message: "Heart sent and create a notification successfully",
         })
     } catch (error) {
         console.log(`Error sendHeart controller: ${error}`);
