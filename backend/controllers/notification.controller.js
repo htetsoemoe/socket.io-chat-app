@@ -52,7 +52,7 @@ export const sendHeart = async (req, res) => {
                 notiSenderName: notiSender?.username,
                 msgId,
                 profilePic: notiSender?.profilePic, // <== change this to notiSender?.profilePic
-                message: `${notiSender?.name} liked your message. "${String(foundMessage?.message).slice(0, 20)}..."`, 
+                message: `${notiSender?.name} liked your message. "${String(foundMessage?.message).slice(0, 20)}..."`,
                 // <== change this to notiSender?.name
             })
         }
@@ -80,6 +80,26 @@ export const sendHeart = async (req, res) => {
         })
     } catch (error) {
         console.log(`Error sendHeart controller: ${error}`);
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+}
+
+export const getAllNotificationsByUserId = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const likeNotiService = new LikeNotiService();
+        const foundNotis = await likeNotiService.getAllNotificationsByUserId(userId);
+
+        res.status(200).json({
+            notifications: foundNotis,
+            status: "success",
+            message: "Get all notifications successfully",
+        })
+
+    } catch (error) {
+        console.log(`Error getAllNotifications controller: ${error}`);
         res.status(500).json({
             message: "Internal server error",
         });
