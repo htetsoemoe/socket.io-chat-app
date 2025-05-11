@@ -27,4 +27,10 @@ export default class LikeNotiService {
             message,
         });
     }
+
+    async getAllNotificationsByUserId(userId) {
+        return await this.likeNotiModel.find({ notiReceiverId: userId })
+        .sort({ createdAt: -1 })
+        .limit(4);
+    }
 }

@@ -25,3 +25,13 @@ export const sendHeartValidator = validate({
             }),
     })
 })
+
+export const getAllNotificationsValidator = validate({
+    params: Joi.object({
+        userId: Joi.string().regex(/^[0-9a-fA-F]{24}$/)
+            .required().messages({
+                "any.required": "User id is required",
+                "string.pattern.base": "User id must be a valid MongoDB ID",
+            }),
+    }),
+})
