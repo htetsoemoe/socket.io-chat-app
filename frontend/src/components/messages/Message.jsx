@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useAuthContext } from '../../context/AuthContext'
 import useConversation from '../../zustand/useConversation'
 import { extractTime } from '../../utils/extractTime.js'
 import { IoIosHeartEmpty, IoIosHeart } from "react-icons/io";
+import { FaTrash } from "react-icons/fa";
 import { useSocketContext } from "../../context/SocketContext.jsx"
+import { set } from 'mongoose';
 
 const Message = ({ message }) => {
     const { authUser } = useAuthContext()
@@ -11,12 +13,21 @@ const Message = ({ message }) => {
 
     const { socket } = useSocketContext()
 
+    // This is a message from me or not
     const fromMe = message.senderId === authUser._id
     const chatClassName = fromMe ? "chat-end" : "chat-start";
     const profilePic = fromMe ? authUser.profilePic : selectedConversation?.profilePic;
     const bubbleBgColor = fromMe ? "bg-blue-500" : "bg-gray-700";
     const formattedTime = extractTime(message.createdAt);
     const [isLikedTrue, setIsLikeTrue] = useState(message.isLike);
+
+    // This code for `RightClickMenu`
+    const [menuPosition, setMenuPosition] = useState({
+        x: 0,
+        y: 0,
+    })
+    const [isVisible, setIsVisible] = useState(false);
+    const menuRef = useRef(null);
 
     useEffect(() => {
         socket.on("receiveLoveReaction", ({ isLike, senderId, receiverId, msgId, }) => {
@@ -26,8 +37,13 @@ const Message = ({ message }) => {
             }
         });
 
+        document.addEventListener("click", handleClickOutside);
+
         // clean up the event listener when the component unmounts
-        return () => socket.off("receiveLoveReaction");
+        return () => {
+            socket.off("receiveLoveReaction");
+            document.removeEventListener("click", handleClickOutside);
+        }
     }, []);
 
     const handleHeartClick = async () => {
@@ -58,10 +74,34 @@ const Message = ({ message }) => {
         })
     }
 
-    console.log(message)
+    // This is for `RightClickContextMenu`
+    const handleContextMenu = (event) => {
+        event.preventDefault(); // captures the right-click and prevents the browser default context menu.
+        setMenuPosition({ x: event.pageX, y: event.pageY }); // This is line is not used, x and y used as hard-code in CSS
+        setIsVisible(true);
+    };
+
+    // This is for `Close RightClickMenu when click outside`
+    const handleClickOutside = (event) => {
+        if (menuRef.current && !menuRef.current.contains(event.target)) {
+            setIsVisible(false);
+        }
+    };
+
+    // This is a handler for the delete button
+    const handleDeleteMsg = async () => {
+        console.log(`delete message ID: ${message._id}`);
+        setIsVisible(false);
+    }
+
     return (
-        <div className=''>
-            <div className={`chat ${chatClassName}`}>
+        <div
+            onContextMenu={handleContextMenu}
+            className='relative'
+        >
+            <div
+                className={`chat ${chatClassName}`}
+            >
                 <div className="chat-image avatar">
                     <div className="w-10 rounded-full">
                         <img
@@ -90,6 +130,22 @@ const Message = ({ message }) => {
                     </div>
                 </div>
             </div>
+
+            {/* User can click right click menu on only the right side of the chat bubble */}
+            {isVisible && chatClassName === "chat-end" && (
+                <div
+                    onClick={handleDeleteMsg}
+                    className={`absolute bg-red-700 text-white
+                        p-2 rounded-full shadow-md z-30 hover:bg-red-900 hover:cursor-pointer
+                        top-[-7px] left-[320px]
+                    `}
+                    // top-[-7px] left-[320px] is important to make the menu appear at the right position of the chat bubble
+                    // style={{ top: menuPosition.y, left: menuPosition.x }} top-[13px] left-[130px]
+                    ref={menuRef}
+                >
+                    <FaTrash />
+                </div>
+            )}
         </div>
     )
 }
