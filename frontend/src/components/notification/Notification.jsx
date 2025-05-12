@@ -11,6 +11,7 @@ const Notification = ({ userId }) => { // userId is the user who is logged in
     const [unreadCount, setUnreadCount] = useState(0);
     const { socket } = useSocketContext();
     const { authUser } = useAuthContext();
+    const dropdownRef = React.useRef(null);
 
     useEffect(() => {
         const getAllNotifications = async () => {
@@ -38,8 +39,17 @@ const Notification = ({ userId }) => { // userId is the user who is logged in
             // setNotifications([...notifications, data] );
         });
 
+        // Close Dropdown on Outside Click
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+
         return () => {
             socket.off("navNotification");
+            document.removeEventListener("mousedown", handleClickOutside);
         };
     }, [userId]);
     // console.log(`Notifications: ${JSON.stringify(notifications)}`);
@@ -52,7 +62,7 @@ const Notification = ({ userId }) => { // userId is the user who is logged in
     }
 
     return (
-        <div className='relative inline-block text-left'>
+        <div className='relative inline-block text-left' ref={dropdownRef}>
             <button
                 onClick={handleOpen}
                 className='relative p-2 rounded-full hover:cursor-pointer transition'
