@@ -28,5 +28,15 @@ const messageSchema = new mongoose.Schema(
     }
 );
 
+messageSchema.pre("findOneAndDelete", async function (next) {
+    try {
+        const messageId = this.getQuery()._id;
+        await mongoose.model("likeNotis").deleteOne({ msgId: messageId });
+        next();
+    } catch (error) {
+       next(error);
+    }
+});
+
 mongoose.model("messages", messageSchema);
 export default messageSchema;

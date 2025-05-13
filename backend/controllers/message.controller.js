@@ -1,5 +1,6 @@
 import MessageService from "../services/message.service.js";
 import ConversationService from "../services/conversation.service.js";
+import LikeNotiService from "../services/likeNoti.service.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
@@ -80,6 +81,41 @@ export const getMessages = async (req, res) => {
         });
     } catch (error) {
         console.log(`Error getMessages controller: ${error}`);
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+}
+
+export const deleteMsgAndNotificationByMsgId = async (req, res) => {
+    try {
+        const msgId = req.params.msgId;
+        const { isLike } = req.body;
+        console.log(`msgId: ${msgId}, isLike: ${isLike}`);
+
+        // If message is like, we need to delete notification
+        // if (isLike === true) {
+        //     const likeNotiService = new LikeNotiService();
+        //     const deleteNoti = await likeNotiService.deleteNotificationByMsgId(msgId);
+        // }
+
+        /*
+            When delete a message, isLike is false, that's why we can't delete notification.
+            So, when delete a message, we need to delete a notification in service using msgId.
+            Using ====>     messageSchema.pre("findOneAndDelete", async function (next) {...}
+        */
+
+        const messageService = new MessageService();
+        const deleteMessage = await messageService.deleteMessageByMessageId(msgId);
+
+        io.emit("deleteMessage", msgId);
+
+        res.status(200).json({
+            message: "Delete notification and message successfully",
+            status: "success",
+        })
+    } catch (error) {
+        console.log(`Error deleteNotificationByMsgId controller: ${error}`);
         res.status(500).json({
             message: "Internal server error",
         });

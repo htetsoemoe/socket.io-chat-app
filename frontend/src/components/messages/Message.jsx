@@ -5,7 +5,6 @@ import { extractTime } from '../../utils/extractTime.js'
 import { IoIosHeartEmpty, IoIosHeart } from "react-icons/io";
 import { FaTrash } from "react-icons/fa";
 import { useSocketContext } from "../../context/SocketContext.jsx"
-import { set } from 'mongoose';
 
 const Message = ({ message }) => {
     const { authUser } = useAuthContext()
@@ -90,9 +89,23 @@ const Message = ({ message }) => {
 
     // This is a handler for the delete button
     const handleDeleteMsg = async () => {
-        console.log(`delete message ID: ${message._id}`);
+        console.log(`delete message ID: ${message._id}, isLike: ${message.isLike}`);
+        
+        const res = await fetch(`http://localhost:3500/api/v1/messages/${message._id}`, {
+            method: "DELETE",
+            credentials: "include",// <-- This is crucial for sending cookies
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                isLike: message?.isLike,
+            }),
+        });
+        const data = await res.json();
+        console.log(data);
         setIsVisible(false);
     }
+    console.log(message);
 
     return (
         <div
