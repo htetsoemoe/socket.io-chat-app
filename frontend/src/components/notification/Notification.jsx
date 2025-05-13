@@ -4,6 +4,7 @@ import { FiClock } from "react-icons/fi";
 import { extractTime } from "../../utils/extractTime.js"
 import { useSocketContext } from "../../context/SocketContext.jsx"
 import { useAuthContext } from '../../context/AuthContext.jsx';
+import notificationSound from "../../assets/sounds/notification.mp3";
 
 const Notification = ({ userId }) => { // userId is the user who is logged in
     const [isOpen, setIsOpen] = useState(false);
@@ -32,11 +33,17 @@ const Notification = ({ userId }) => { // userId is the user who is logged in
         getAllNotifications();
 
         socket.on("navNotification", (data) => {
+            const sound = new Audio(notificationSound);
+            sound.play();
             getAllNotifications(); // notifications.notifications
             setUnreadCount((prevCount) => prevCount + 1);
 
             // setNotifications((prevNotifications) => [...prevNotifications, data]);
             // setNotifications([...notifications, data] );
+        });
+
+        socket.on("deleteMessage", () => {
+            getAllNotifications();
         });
 
         // Close Dropdown on Outside Click
@@ -59,6 +66,7 @@ const Notification = ({ userId }) => { // userId is the user who is logged in
         if (!isOpen) {
             setUnreadCount(0);
         }
+        // getAllNotifications();
     }
 
     return (

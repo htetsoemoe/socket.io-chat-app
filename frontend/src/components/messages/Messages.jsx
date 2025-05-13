@@ -1,19 +1,46 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Message from './Message'
 import MessageSkeleton from '../skeletons/MessageSkeleton'
 import useGetMessages from '../../hooks/useGetMessages'
 import useListenMessages from '../../hooks/useListenMessages'
+import { useSocketContext } from "../../context/SocketContext.jsx"
 
 const Messages = () => {
-    const { messages, loading } = useGetMessages()
+    const { socket } = useSocketContext()
+    const { messages: initialMessages, loading } = useGetMessages()
+    const [messages, setMessages] = useState([])
     const lastMessageRef = useRef()
     useListenMessages()
 
+    // Set initial messages from useGetMessages
+    useEffect(() => {
+       if (!loading) {
+            setMessages(initialMessages)
+        }
+    }, [initialMessages, loading])
+
+    // Listen for deleteMessage event from socket
+    useEffect(() => {
+        const handleDeleteMessage = (msgId) => {
+            console.log(`msgId: ${msgId}`)
+            setMessages((prevMessages) =>
+                prevMessages.filter((message) => message._id !== msgId)
+            )
+        }
+
+        socket.on("deleteMessage", handleDeleteMessage)
+
+        return () => {
+            socket.off("deleteMessage", handleDeleteMessage)
+        }
+    }, [socket])
+
+    // Scroll to the last message when new messages are added
     useEffect(() => {
         setTimeout(() => {
             lastMessageRef.current?.scrollIntoView({ behavior: 'smooth' })
         }, 100)
-    }, [messages])
+    }, [messages]) 
 
     return (
         <div className='px-4 flex-1 overflow-auto'>

@@ -33,4 +33,8 @@ export default class LikeNotiService {
         .sort({ createdAt: -1 })
         .limit(4);
     }
+
+    async deleteNotificationByMsgId(msgId) {
+        return await this.likeNotiModel.deleteOne({ msgId: msgId });
+    }
 }
