@@ -21,4 +21,8 @@ export default class MessageService {
     async deleteMessageByMessageId(msgId) {
         return await this.messageModel.findByIdAndDelete({ _id: msgId });
     }
+
+    async updateMessage(msgId, message) {
+        return await this.messageModel.findByIdAndUpdate(msgId, { message }, { new: true });
+    }
 }

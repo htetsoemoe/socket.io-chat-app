@@ -4,6 +4,7 @@ import useConversation from '../../zustand/useConversation'
 import { extractTime } from '../../utils/extractTime.js'
 import { IoIosHeartEmpty, IoIosHeart } from "react-icons/io";
 import { FaTrash } from "react-icons/fa";
+import { FaPencil } from "react-icons/fa6";
 import { useSocketContext } from "../../context/SocketContext.jsx"
 
 const Message = ({ message }) => {
@@ -28,6 +29,10 @@ const Message = ({ message }) => {
     const [isVisible, setIsVisible] = useState(false);
     const menuRef = useRef(null);
 
+    const [isEdit, setIsEdit] = useState(false);
+    const [editMsg, setEditMsg] = useState(message.message);
+    const editMsgRef = useRef(null);
+
     useEffect(() => {
         socket.on("receiveLoveReaction", ({ isLike, senderId, receiverId, msgId, }) => {
             console.log(`receiveLoveReaction: ${isLike}, ${senderId}, ${receiverId}, ${msgId}`);
@@ -37,11 +42,13 @@ const Message = ({ message }) => {
         });
 
         document.addEventListener("click", handleClickOutside);
+        // document.addEventListener("click", handleClickOutsideEditMsg);
 
         // clean up the event listener when the component unmounts
         return () => {
             socket.off("receiveLoveReaction");
             document.removeEventListener("click", handleClickOutside);
+           // document.removeEventListener("click", handleClickOutsideEditMsg);
         }
     }, []);
 
@@ -87,6 +94,12 @@ const Message = ({ message }) => {
         }
     };
 
+    // const handleClickOutsideEditMsg = (event) => {
+    //     if (editMsgRef.current && !editMsgRef.current.contains(event.target)) {
+    //         setIsEdit(false);
+    //     }
+    // };
+
     // This is a handler for the delete button
     const handleDeleteMsg = async () => {
         console.log(`delete message ID: ${message._id}, isLike: ${message.isLike}`);
@@ -105,7 +118,35 @@ const Message = ({ message }) => {
         console.log(data);
         setIsVisible(false);
     }
-    console.log(message);
+
+    const handleCloseEditMsg = (event) => {
+        event.preventDefault();
+        setEditMsg(message.message);
+        setIsEdit(false);
+    }
+
+    const handleEditMsg = () => {
+        console.log(`edit message ID: ${message._id}, isLike: ${message.isLike}`);
+        setIsEdit(true);
+    }
+
+    const handleSaveEditMsg = async (event) => {
+        event.preventDefault();
+        console.log(`save edit message ID: ${message._id}, msg: ${editMsg}`); 
+
+        const res = await fetch(`http://localhost:3500/api/v1/messages/${message._id}`, {
+            method: "PUT",
+            credentials: "include",// <-- This is crucial for sending cookies
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                message: editMsg,
+            }),
+        });
+        setIsEdit(false);
+    }
+    // console.log(message);
 
     return (
         <div
@@ -146,17 +187,66 @@ const Message = ({ message }) => {
 
             {/* User can click right click menu on only the right side of the chat bubble */}
             {isVisible && chatClassName === "chat-end" && (
-                <div
-                    onClick={handleDeleteMsg}
-                    className={`absolute bg-red-700 text-white
-                        p-2 rounded-full shadow-md z-30 hover:bg-red-900 hover:cursor-pointer
-                        top-[-7px] left-[320px]
+               <div className="flex items-center justify-between gap-3">
+                    <div
+                        onClick={handleEditMsg}
+                        className={`absolute bg-yellow-900 text-white
+                        p-2 rounded-full shadow-md z-30 hover:bg-yellow-700 hover:cursor-pointer
+                        top-[-13px] left-[320px]
                     `}
-                    // top-[-7px] left-[320px] is important to make the menu appear at the right position of the chat bubble
-                    // style={{ top: menuPosition.y, left: menuPosition.x }} top-[13px] left-[130px]
-                    ref={menuRef}
-                >
-                    <FaTrash />
+                        // top-[-7px] left-[320px] is important to make the menu appear at the right position of the chat bubble
+                        // style={{ top: menuPosition.y, left: menuPosition.x }} top-[13px] left-[130px]
+                        ref={menuRef}
+                    >
+                        <FaPencil />
+                    </div>
+
+                    <div
+                        onClick={handleDeleteMsg}
+                        className={`absolute bg-red-700 text-white
+                        p-2 rounded-full shadow-md z-30 hover:bg-red-900 hover:cursor-pointer
+                        top-[-13px] left-[280px]
+                    `}
+                        // top-[-7px] left-[320px] is important to make the menu appear at the right position of the chat bubble
+                        // style={{ top: menuPosition.y, left: menuPosition.x }} top-[13px] left-[130px]
+                        ref={menuRef}
+                    >
+                        <FaTrash />
+                    </div>
+               </div>
+            )}
+
+            {isEdit && (
+                <div > {/* ref={editMsgRef} */}
+                    <form>
+                        <textarea 
+                            className={`absolute bg-blue-200 text-black
+                            w-64 h-20 p-2 rounded shadow-md z-30
+                            top-[-13px] left-[100px]
+                        `}
+                        name='editMsg' id='editMsg'
+                        value={editMsg}
+                        onChange={(e) => setEditMsg(e.target.value)}
+                        />
+                        <span
+                            className={`absolute bg-red-900 text-white
+                                px-2 rounded-full shadow-md z-30 hover:bg-red-700 hover:cursor-pointer
+                                top-[-25px] left-[340px]
+                            `}
+                            onClick={handleCloseEditMsg}
+                        >
+                            x
+                        </span>
+                        <button
+                            className={`absolute bg-blue-900 text-white
+                                px-4 rounded shadow-md z-30 hover:bg-blue-700 hover:cursor-pointer
+                                top-[67px] left-[297px]
+                            `}
+                            onClick={handleSaveEditMsg}
+                        >
+                            Edit
+                        </button>
+                    </form>
                 </div>
             )}
         </div>

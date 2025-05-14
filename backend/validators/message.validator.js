@@ -41,3 +41,19 @@ export const deleteMsgAndNotificationByMsgIdValidator = validate({
         }),
     })
 })
+
+export const updateMessageValidator = validate({
+    params: Joi.object({
+        msgId: Joi.string().regex(/^[0-9a-fA-F]{24}$/)
+            .required().messages({
+                "any.required": "Message id is required",
+                "string.pattern.base": "Message id must be a valid MongoDB ID",
+            }),
+    }),
+    body: Joi.object({
+        message: Joi.string().required().messages({
+            "any.required": "Message is required",
+            "string.message": "Message must be a string",
+        }),
+    })
+})

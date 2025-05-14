@@ -1,6 +1,5 @@
 import MessageService from "../services/message.service.js";
 import ConversationService from "../services/conversation.service.js";
-import LikeNotiService from "../services/likeNoti.service.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const sendMessage = async (req, res) => {
@@ -119,5 +118,29 @@ export const deleteMsgAndNotificationByMsgId = async (req, res) => {
         res.status(500).json({
             message: "Internal server error",
         });
+    }
+}
+
+export const updateMessage = async (req, res) => {
+    try {
+        const msgId = req.params.msgId;
+        const { message } = req.body;
+
+        const messageService = new MessageService();
+        const updateMessage = await messageService.updateMessage(msgId, message);
+
+        if (updateMessage) {
+            io.emit("updateMessage", updateMessage);
+        }
+
+        res.status(200).json({
+            message: "Update message successfully",
+            status: "success",
+        })
+    } catch (error) {
+        console.log(`Error updateMessage controller: ${error}`);
+        res.status(500).json({
+            message: "Internal server error",
+        }); 
     }
 }
