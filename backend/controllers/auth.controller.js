@@ -1,11 +1,12 @@
 import bcrypt from "bcryptjs";
 import AuthService from "../services/auth.service.js";
 import { generateTokenAndSetCookie } from "../utils/index.js";
+import { transporter } from "../config/index.js";
 
 export const signup = async (req, res) => {
     const authService = new AuthService();
     try {
-        const { name, username, password, confirmPassword, gender } = req.body;
+        const { name, username, password, confirmPassword, gender, email } = req.body; // <== add email
         // console.log(`name: ${name}, username: ${username}, password: ${password}, confirmPassword: ${confirmPassword}, gender: ${gender}`);
 
         if (password !== confirmPassword) {
@@ -22,6 +23,14 @@ export const signup = async (req, res) => {
             });
         }
 
+        // Check if email already exists
+        const existedEmail = await authService.getUserByEmail(email);
+        if (existedEmail) {
+            return res.status(400).json({
+                message: "Email already exists",
+            });
+        }
+
         // Hash password
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
@@ -35,6 +44,7 @@ export const signup = async (req, res) => {
             password: hashedPassword,
             gender,
             profilePic: gender === "male" ? maleProfilePic : femaleProfilePic,
+            email,
         };
         const newUser = await authService.createUser(newUserData);
         const { password: pass, ...rest } = newUser._doc;
@@ -42,6 +52,15 @@ export const signup = async (req, res) => {
         if (newUser) {
             // Generate token and set cookie
             generateTokenAndSetCookie(newUser._id, res);
+
+            // Sending welcome email with nodemailer using Brevo SMTP
+            const mailOptions = {
+                from: process.env.SENDER_EMAIL,
+                to: email,
+                subject: "Welcome to Chatty Twitty",
+                text: `Welcome to Chatty Twitty, You have successfully signed up with email: ${email}. Enjoy your chat!`,
+            }
+            await transporter.sendMail(mailOptions);
 
             res.status(201).json({
                 user: rest,

@@ -27,7 +27,11 @@ export const signupValidator = validate({
             "any.required": "Gender is required",
             "string.gender": "Gender must be a string",
             "any.only": "Gender must be either male or female",
-        })
+        }),
+        email: Joi.string().email().required().messages({
+            "any.required": "email is required",
+            "string.email": "email must be a valid email address",
+        }),
     }),
 });
 
