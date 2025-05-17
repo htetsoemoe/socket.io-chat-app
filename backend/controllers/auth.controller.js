@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 import AuthService from "../services/auth.service.js";
 import { generateTokenAndSetCookie } from "../utils/index.js";
 import { transporter } from "../config/index.js";
+import e from "express";
 
 export const signup = async (req, res) => {
     const authService = new AuthService();
@@ -101,6 +102,12 @@ export const signin = async (req, res) => {
             name: foundUser?.name,
             username: foundUser?.username,
             profilePic: foundUser?.profilePic,
+            email: foundUser?.email,
+            verifyOtp: foundUser?.verifyOtp,
+            verifyOtpExpireAt: foundUser?.verifyOtpExpireAt,
+            isAccountVerified: foundUser?.isAccountVerified,
+            resetOtp: foundUser?.resetOtp,
+            resetOtpExpireAt: foundUser?.resetOtpExpireAt,
         });
     } catch (error) {
         console.log(`Error signin controller: ${error}`);
@@ -216,6 +223,20 @@ export const verifyEmail = async (req, res) => {
         });
     } catch (error) {
         console.log(`Error verifyEmail controller: ${error}`);
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+}
+
+export const isAuthenticated = async (req, res) => {
+    try {
+        return res.status(200).json({
+            success: true,
+            message: "User is authenticated",
+        });
+    } catch (error) {
+        console.log(`Error isAuthenticated controller: ${error}`);
         res.status(500).json({
             message: "Internal server error",
         });
