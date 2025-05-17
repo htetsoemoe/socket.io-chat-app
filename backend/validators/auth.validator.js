@@ -49,3 +49,14 @@ export const signinValidator = validate({
         }),
     }),
 })
+
+export const verifyEmailOTPValidator = validate({
+    body: Joi.object({
+        otp: Joi.string().pattern(/^[0-9]{6}$/).required().messages({
+            "any.required": "OTP is required",
+            "string.otp": "OTP must be a string",
+            "string.pattern.base": "OTP must be a 6 digit number",
+            "string.empty": "OTP is required",
+        })
+    }),
+});
