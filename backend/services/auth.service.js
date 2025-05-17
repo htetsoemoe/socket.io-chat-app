@@ -18,6 +18,10 @@ export default class AuthService {
         return await this.userModel.findOne({ username });
     }
 
+    async getUserByEmail(email) {
+        return await this.userModel.findOne({ email });
+    }
+
     async getUserById(id) {
         return await this.userModel.findById(
             {
