@@ -4,6 +4,8 @@ import {
     signupValidator,
     signinValidator,
     verifyEmailOTPValidator,
+    sendResetPasswordOtpValidator,
+    resetPasswordValidator,
 } from "../validators/auth.validator.js";
 import {
     signup,
@@ -12,6 +14,8 @@ import {
     sendVerificationOTP,
     verifyEmail,
     isAuthenticated,
+    sendResetPasswordOtp,
+    resetPassword,
 } from "../controllers/auth.controller.js";
 
 const authRouter = express.Router();
@@ -19,6 +23,9 @@ const authRouter = express.Router();
 authRouter.post('/signup', signupValidator, signup);
 authRouter.post('/signin', signinValidator, signin);
 authRouter.post('/logout', logout);
+
+authRouter.post('/send-reset-otp', sendResetPasswordOtpValidator, sendResetPasswordOtp);
+authRouter.post('/reset-password', resetPasswordValidator, resetPassword);
 
 authRouter.use(verifyToken);
 authRouter.post('/send-verify-otp', sendVerificationOTP);

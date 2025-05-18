@@ -242,3 +242,110 @@ export const isAuthenticated = async (req, res) => {
         });
     }
 }
+
+// Send reset password OTP to user's email
+export const sendResetPasswordOtp = async (req, res) => {
+    try {
+        const authService = new AuthService();
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: "Email is required",
+            })
+        }
+
+        const user = await authService.getUserByEmail(email);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            })
+        }
+
+        // Generate reset password OTP = 6 digit random number
+        const otp = String(Math.floor(100000 + Math.random() * 900000));
+
+        // Set reset OTP in user's document
+        user.resetOtp = otp;
+        user.resetOtpExpireAt = Date.now() + 15 * 60 * 1000; // 15 minutes in milliseconds
+        await user.save();
+
+        // Send reset password OTP to user's email
+        const mailOptions = {
+            from: process.env.SENDER_EMAIL,
+            to: user?.email,
+            subject: "Reset Password OTP",
+            text: `Your reset OTP is ${otp}. This OTP is valid for 15 minutes. Reset your password using this OTP.`,
+        }
+        await transporter.sendMail(mailOptions);
+
+        res.status(200).json({
+            success: true,
+            message: "Reset password OTP sent successfully",
+        });
+
+    } catch (error) {
+        console.log(`Error sendResetPasswordOtp controller: ${error}`);
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+}
+
+// Reset User Password
+export const resetPassword = async (req, res) => {
+    try {
+        const { email, newPassword, otp } = req.body;
+        const authService = new AuthService();
+
+        if (!email || !newPassword || !otp) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid request: Missing required fields",
+            })
+        }
+
+        // Find user by email
+        const user = await authService.getUserByEmail(email);
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            })            
+        }
+
+        // Check if OTP is valid or not
+        if (user.resetOtp  === '' || user.resetOtp !== otp) {
+            return res.status(400).json({
+                success: false,
+                message: "Invalid OTP",
+            });  
+        }
+
+        // Check if OTP is expired or not
+        if (user.resetOtpExpireAt < Date.now()) {
+            return res.status(400).json({
+                success: false,
+                message: "Reset OTP expired",
+            });
+        }
+
+        // Update user's password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        user.resetOtp = '';
+        user.resetOtpExpireAt = 0;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            message: "Password reset successfully",
+        });
+    } catch (error) {
+        console.log(`Error resetPassword controller: ${error}`);
+        res.status(500).json({
+            message: "Internal server error",
+        });
+    }
+}
