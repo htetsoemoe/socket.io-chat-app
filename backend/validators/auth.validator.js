@@ -60,3 +60,33 @@ export const verifyEmailOTPValidator = validate({
         })
     }),
 });
+
+export const sendResetPasswordOtpValidator = validate({
+    body: Joi.object({
+        email: Joi.string().email().required().messages({
+            "any.required": "Email is required",
+            "string.email": "Email must be a valid email address",
+        }),
+    }),
+});
+
+export const resetPasswordValidator = validate({
+    body: Joi.object({
+        email: Joi.string().email().required().messages({
+            "any.required": "Email is required",
+            "string.email": "Email must be a valid email address",
+        }),
+        newPassword: Joi.string().min(6).max(100).required().messages({
+            "any.required": "New Password is required",
+            "string.password": "New Password must be a string",
+            "string.min": "New Password must be at least 6 characters",
+            "string.max": "New Password must be less than 100 characters",
+        }),
+        otp: Joi.string().pattern(/^[0-9]{6}$/).required().messages({
+            "any.required": "OTP is required",
+            "string.otp": "OTP must be a string",
+            "string.pattern.base": "OTP must be a 6 digit number",
+            "string.empty": "OTP is required",
+        })
+    })
+})
