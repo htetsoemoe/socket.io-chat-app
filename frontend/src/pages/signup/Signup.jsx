@@ -10,6 +10,7 @@ const Signup = () => {
     password: '',
     confirmPassword: '',
     gender: '',
+    email: '',
   })
   const { loading, signup } = useSignup()
 
@@ -29,7 +30,7 @@ const Signup = () => {
           Chatty<span className="text-black ml-3">Twitty</span>
         </h1>
 
-        <form onSubmit={ handleSubmit}>
+        <form onSubmit={handleSubmit}>
           <div className='mb-5'>
             <div className="label p-2 pl-0 mb-1 flex items-start">
               <span className="text-base">Name</span>
@@ -51,6 +52,18 @@ const Signup = () => {
               className='w-full h-10 input focus:outline-none'
               value={inputs.username}
               onChange={(e) => setInputs({ ...inputs, username: e.target.value })}
+            />
+          </div>
+
+          <div className='mb-5'>
+            <div className="label p-2 pl-0 mb-1 flex items-start">
+              <span className="text-base">Email</span>
+            </div>
+            <input type="text"
+              placeholder='Enter your email'
+              className='w-full h-10 input focus:outline-none'
+              value={inputs.email}
+              onChange={(e) => setInputs({ ...inputs, email: e.target.value })}
             />
           </div>
 
