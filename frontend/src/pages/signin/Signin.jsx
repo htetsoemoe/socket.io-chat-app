@@ -47,6 +47,25 @@ const Signin = () => {
 
                     <div className="flex items-start">
                         <Link
+                            to="/reset-password"
+                            className='text-sm hover:underline hover:text-white'
+                        >
+                            <span
+                                className='text-sm hover:underline hover:text-red-900'
+                            >
+                                Forgot Password?
+                            </span>
+                        </Link>
+                    </div>
+
+                    <div>
+                        <button className="btn btn-primary btn-block mt-5 mb-5">
+                            {loading ? <span className="loading loading-spinner"></span> : "Sign In"}
+                        </button>
+                    </div>
+
+                    <div className="flex items-center justify-center">
+                        <Link
                             to="/signup"
                             className='text-sm hover:underline hover:text-white'
                         >
@@ -56,12 +75,6 @@ const Signin = () => {
                                 Don't have an account, Sign Up?
                             </span>
                         </Link>
-                    </div>
-
-                    <div>
-                        <button className="btn btn-primary btn-block mt-5">
-                            {loading ? <span className="loading loading-spinner"></span> : "Sign In"}
-                        </button>
                     </div>
                 </form>
             </div>
