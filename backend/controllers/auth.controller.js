@@ -80,8 +80,8 @@ export const signup = async (req, res) => {
 export const signin = async (req, res) => {
     const authService = new AuthService();
     try {
-        const { username, password } = req.body;
-        const foundUser = await authService.getUserByUsername(username);
+        const { email, password } = req.body;
+        const foundUser = await authService.getUserByEmail(email);
         if (!foundUser) {
             return res.status(404).json({
                 message: "User not found",
