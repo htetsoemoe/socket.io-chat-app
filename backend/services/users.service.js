@@ -38,12 +38,6 @@ export default class UserService {
     // OTP Auth: get user name, isAccountVerified by userId
     async getUserData(userId) {
         return await this.userModel.findById(
-            {
-                _id: userId
-            },
-            {
-                name: 1,
-                isAccountVerified: 1,
-            });
+            { _id: userId });
     }
 }   
