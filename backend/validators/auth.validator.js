@@ -37,9 +37,9 @@ export const signupValidator = validate({
 
 export const signinValidator = validate({
     body: Joi.object({
-        username: Joi.string().required().messages({
-            "any.required": "Username is required",
-            "string.username": "Username must be a string",
+        email: Joi.string().email().required().messages({
+            "any.required": "email is required",
+            "string.email": "email must be a valid email address",
         }),
         password: Joi.string().min(6).max(100).required().messages({
             "any.required": "Password is required",

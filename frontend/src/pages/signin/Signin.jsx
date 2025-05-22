@@ -3,14 +3,14 @@ import { Link } from 'react-router-dom'
 import useSignin from '../../hooks/useSignin.js'
 
 const Signin = () => {
-    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
     const { loading, signin } = useSignin();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await signin(username, password);
+        await signin(email, password);
     }
 
     return (
@@ -23,13 +23,13 @@ const Signin = () => {
                 <form onSubmit={handleSubmit}>
                     <div className='mb-5'>
                         <div className="label p-2 pl-0 mb-1 flex items-start">
-                            <span className="text-base">Username</span>
+                            <span className="text-base">Email</span>
                         </div>
                         <input type="text"
-                            placeholder='Enter your username'
+                            placeholder='Enter your email'
                             className='w-full h-10 input focus:outline-none'
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                         />
                     </div>
 
