@@ -282,7 +282,7 @@ export const sendResetPasswordOtp = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: "Reset password OTP sent successfully",
+            message: "Reset password OTP sent to your email",
         });
 
     } catch (error) {

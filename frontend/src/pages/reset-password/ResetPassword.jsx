@@ -1,4 +1,6 @@
 import React, { useState, useRef } from 'react'
+import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const ResetPassword = () => {
     const inputRefs = useRef([]);
@@ -7,6 +9,7 @@ const ResetPassword = () => {
     const [isEmailSent, setIsEmailSent] = useState('');
     const [otp, setOtp] = useState(0);
     const [isOtpSubmitted, setIsOtpSubmitted] = useState(false);
+    const navigate = useNavigate();
 
     // Function to focus on the next input field when the current one is filled
     const handleInput = (e, index) => {
@@ -33,12 +36,87 @@ const ResetPassword = () => {
         })
     }
 
+    // Handler for sending the reset password request
+    const handleEmailSubmit = async (e) => {
+        e.preventDefault();
+        /**
+        ^ – Start of string.
+        [a-zA-Z0-9._%+-]+ – Matches the username part (before @), allowing letters, digits, dots, underscores, etc.
+        @ – The required @ symbol.
+        [a-zA-Z0-9.-]+ – Matches the domain name.
+        \. – The literal dot (.) before the domain extension.
+        [a-zA-Z]{2,} – The domain extension (e.g., com, org, io) with at least two letters.
+        $ – End of string.
+     */
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(email)) {
+            toast.error('Please enter a valid email address.');
+            return;
+        }
+        try {
+            const res = await fetch('/api/v1/auth/send-reset-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ email }),
+            });
+            const data = await res.json();
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            setIsEmailSent(true);
+            toast.success(data.message);
+        } catch (error) {
+            toast.error(error.message);
+        }
+    }
+
+    // Handler for submitting the OTP code
+    const handleOtpSubmit = async (e) => {
+        e.preventDefault();
+        const otpArray = inputRefs.current.map(e => e.value);
+        const otpData = otpArray.join('');
+        setOtp(otpData);
+        setIsOtpSubmitted(true);
+    }
+
+    // Handler for submit the new password
+    const handleNewPasswordSubmit = async (e) => {
+        e.preventDefault();
+        if (newPassword.length < 6) {
+            toast.error('Password must be at least 6 characters long.');
+            return;
+        }
+        try {
+            const res = await fetch('/api/v1/auth/reset-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({ email, otp, newPassword }),
+            });
+            const data = await res.json();
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            if (data.success) {
+                toast.success(data.message);
+                navigate('/signin');
+            }
+        } catch (error) {
+            toast.error(error.message);
+        }
+    }
+
     return (
         <div className='flex flex-col items-center justify-center min-w-96 mx-auto'>
             {/* Enter your email address form. */}
             {!isEmailSent &&
                 <div className="backdrop-blur-xs bg-white/0 border border-white/0 p-6 rounded-2xl shadow-lg max-w-md w-full">
-                    <form >
+                    <form onSubmit={handleEmailSubmit}>
                         <h1 className="text-3xl font-semibold text-center text-black mb-1">
                             <span className="text-black">Reset Password</span>
                         </h1>
@@ -72,7 +150,7 @@ const ResetPassword = () => {
             {/* Reset password OTP form. */}
             {!isOtpSubmitted && isEmailSent &&
                 <div className="backdrop-blur-xs bg-white/0 border border-white/0 p-6 rounded-2xl shadow-lg max-w-md w-full">
-                    <form >
+                    <form onSubmit={handleOtpSubmit}>
                         <h1 className="text-3xl font-semibold text-center text-black mb-1">
                             <span className="text-black">Reset Password OTP</span>
                         </h1>
@@ -117,7 +195,7 @@ const ResetPassword = () => {
             {/* Enter your new password form. */}
             {isOtpSubmitted && isEmailSent &&
                 <div className="backdrop-blur-xs bg-white/0 border border-white/0 p-6 rounded-2xl shadow-lg max-w-md w-full">
-                    <form >
+                    <form onSubmit={handleNewPasswordSubmit}>
                         <h1 className="text-3xl font-semibold text-center text-black mb-1">
                             <span className="text-black">New Password</span>
                         </h1>
