@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import AuthService from "../services/auth.service.js";
 import { generateTokenAndSetCookie } from "../utils/index.js";
 import { transporter } from "../config/index.js";
-import e from "express";
+import { EMAIL_VERIFY_TEMPLATE, PASSWORD_RESET_TEMPLATE, WELCOME_EMAIL_TEMPLATE } from "../config/index.js";
 
 export const signup = async (req, res) => {
     const authService = new AuthService();
@@ -59,7 +59,9 @@ export const signup = async (req, res) => {
                 from: process.env.SENDER_EMAIL,
                 to: email,
                 subject: "Welcome to Chatty Twitty",
-                text: `Welcome to Chatty Twitty, You have successfully signed up with email: ${email}. Enjoy your chat!`,
+                // text: `Welcome to Chatty Twitty, You have successfully signed up with email: ${email}. Enjoy your chat!`,
+                html: WELCOME_EMAIL_TEMPLATE
+                    .replace("{{email}}", email)
             }
             await transporter.sendMail(mailOptions);
 
@@ -158,7 +160,10 @@ export const sendVerificationOTP = async (req, res) => {
             from: process.env.SENDER_EMAIL,
             to: user?.email,
             subject: "Account Verification OTP",
-            text: `Your OTP is ${otp}. This OTP is valid for 24 hours. Verify your account using this OTP.`,
+            // text: `Your OTP is ${otp}. This OTP is valid for 24 hours. Verify your account using this OTP.`,
+            html: EMAIL_VERIFY_TEMPLATE
+                .replace("{{email}}", user?.email)
+                .replace("{{otp}}", otp),
         }
         await transporter.sendMail(mailOptions);
 
@@ -276,7 +281,10 @@ export const sendResetPasswordOtp = async (req, res) => {
             from: process.env.SENDER_EMAIL,
             to: user?.email,
             subject: "Reset Password OTP",
-            text: `Your reset OTP is ${otp}. This OTP is valid for 15 minutes. Reset your password using this OTP.`,
+            // text: `Your reset OTP is ${otp}. This OTP is valid for 15 minutes. Reset your password using this OTP.`,
+            html: PASSWORD_RESET_TEMPLATE
+                .replace("{{email}}", user?.email)
+                .replace("{{otp}}", otp),
         }
         await transporter.sendMail(mailOptions);
 
@@ -312,15 +320,15 @@ export const resetPassword = async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: "User not found",
-            })            
+            })
         }
 
         // Check if OTP is valid or not
-        if (user.resetOtp  === '' || user.resetOtp !== otp) {
+        if (user.resetOtp === '' || user.resetOtp !== otp) {
             return res.status(400).json({
                 success: false,
                 message: "Invalid OTP",
-            });  
+            });
         }
 
         // Check if OTP is expired or not
